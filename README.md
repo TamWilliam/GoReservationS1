@@ -6,6 +6,9 @@ Il y 3 types d’utilisateurs :
   – Les administrateurs
 
 ## Objectifs
+### Contexte
+Répertoire de salons de coiffure situés à Paris
+
 ### Système de session
 Créer un système de session : utilisateur, salon, admin
 
@@ -15,3 +18,38 @@ Créer un outil où, les utilisateurs connectés peuvent choisir un salon puis u
 
 ### Front
 Utilisation de Tailwind CSS / Bootstrap
+**page d'accueil**
+**page login**
+**page de création de compte** création d'un compte utilisateur
+**page de compte utilisateur** update/delete d'un compte utilisateur
+**page d'ajout de salon de coiffure** création d'un compte salon de coiffure
+**page de compte salon de coiffure** update/delete d'un compte salon de coiffure
+**page des résultats des salons** read des salons de coiffure
+**page des réservations**
+**page admin** read/delete comptes utilisateurs et salons de coiffure
+
+### DB
+- **Users**
+  - id_user *INT*
+  - role *INT* (0 : user, 1 : hairdress, 2 : admin)
+  - firstname *VARCHAR*
+  - lastname *VARCHAR*
+  - email *VARCHAR*
+
+- **Hairdress**
+  - id_hairdress *INT*
+  - id_haidresser *INT*
+  - employees *INT* (le nombre d'employés)
+  - name *VARCHAR*
+  - address *TEXT*
+  - email *VARCHAR*
+  - hours *VARCHAR*
+  - days *VARCHAR*
+
+- **Hairdresser**
+  - id_hairdresser *INT*
+  - id_hairdress *INT*
+  - firstname *VARCHAR*
+  - lastname *VARCHAR*
+  - hours *VARCHAR*
+  - days *VARCHAR*
