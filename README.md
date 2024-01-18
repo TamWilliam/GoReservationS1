@@ -31,10 +31,11 @@ Utilisation de Tailwind CSS / Bootstrap
 ### DB
 - **Users**
   - id_user *INT*
-  - role *INT* (0 : user, 1 : hairdress, 2 : admin)
+  - role *INT* (0 : user, 1 : admin)
   - firstname *VARCHAR*
   - lastname *VARCHAR*
   - email *VARCHAR*
+  - password *VARCHAR*
 
 - **Hairdress**
   - id_hairdress *INT*
@@ -45,6 +46,7 @@ Utilisation de Tailwind CSS / Bootstrap
   - email *VARCHAR*
   - hours *VARCHAR*
   - days *VARCHAR*
+  - password *VARCHAR*
 
 - **Hairdresser**
   - id_hairdresser *INT*
