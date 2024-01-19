@@ -51,7 +51,8 @@ Utilisation de Bootstrap pour le style
   - id_hairsalon _INT_
   - name _VARCHAR_
   - address _VARCHAR_
-  - email _varchar_
+  - email _VARCHAR_
+  - password _VARCHAR_
 
 - **openinghours**
 
