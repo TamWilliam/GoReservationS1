@@ -51,7 +51,7 @@ func main() {
 
 	/* gestion des assets statiques */
 	fs := http.FileServer(http.Dir("assets"))
-	http.Handle("/salon/", http.StripPrefix("/assets/", fs))
+	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
 	tmpl := template.Must(template.ParseFiles("templates/salon-de-coiffure.html"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
