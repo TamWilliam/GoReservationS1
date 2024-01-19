@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 
+	_ "image/png"
+
 	_ "github.com/lib/pq"
 )
 
@@ -18,19 +20,20 @@ const (
 	dbname   = "projetgoreservation"
 )
 
-type Hairdresser struct {
-	IDHairdresser int
-	FirstName     string
-	LastName      string
-	IDHairSalon   int
+type Hairsalon struct {
+	IDHairsalon int
+	Name        string
+	Address     string
+	Email       string
 }
 
-type HairdresserPageData struct {
-	PageTitle    string
-	Hairdressers []Hairdresser
+type HairsalonPageData struct {
+	PageTitle  string
+	Hairsalons []Hairsalon
 }
 
 func main() {
+
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
@@ -46,12 +49,16 @@ func main() {
 		panic(err)
 	}
 
+	/* gestion des assets statiques */
+	fs := http.FileServer(http.Dir("assets"))
+	http.Handle("/salon/", http.StripPrefix("/assets/", fs))
+
 	tmpl := template.Must(template.ParseFiles("templates/salon-de-coiffure.html"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		var hairdressers []Hairdresser
+		var hairsalons []Hairsalon
 
 		if db != nil {
-			rows, err := db.Query("SELECT * FROM hairdresser")
+			rows, err := db.Query("SELECT * FROM hairsalon")
 			if err != nil {
 				log.Printf("Erreur lors de l'exécution de la requête: %v", err)
 				http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
@@ -60,12 +67,12 @@ func main() {
 			defer rows.Close()
 
 			for rows.Next() {
-				var h Hairdresser
-				if err := rows.Scan(&h.IDHairdresser, &h.FirstName, &h.LastName, &h.IDHairSalon); err != nil {
+				var h Hairsalon
+				if err := rows.Scan(&h.IDHairsalon, &h.Name, &h.Address, &h.Email); err != nil {
 					log.Printf("Erreur lors de la lecture des lignes: %v", err)
 					continue
 				}
-				hairdressers = append(hairdressers, h)
+				hairsalons = append(hairsalons, h)
 			}
 
 			if err := rows.Err(); err != nil {
@@ -73,9 +80,9 @@ func main() {
 			}
 		}
 
-		data := HairdresserPageData{
-			PageTitle:    "Liste des coiffeurs",
-			Hairdressers: hairdressers,
+		data := HairsalonPageData{
+			PageTitle:  "Liste des salons de coiffure",
+			Hairsalons: hairsalons,
 		}
 		tmpl.Execute(w, data)
 	})
