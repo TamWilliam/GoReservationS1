@@ -4,8 +4,10 @@ header {
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
+    background-size: cover;
     margin-bottom: 2rem;
     filter : brightness(95%);
+    width: 100%;
 }
 
 h1 {

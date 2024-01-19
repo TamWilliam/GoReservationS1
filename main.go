@@ -25,6 +25,7 @@ type Hairsalon struct {
 	Name        string
 	Address     string
 	Email       string
+	Password    string
 }
 
 type HairsalonPageData struct {
@@ -69,7 +70,7 @@ func main() {
 
 			for rows.Next() {
 				var h Hairsalon
-				if err := rows.Scan(&h.IDHairsalon, &h.Name, &h.Address, &h.Email); err != nil {
+				if err := rows.Scan(&h.IDHairsalon, &h.Name, &h.Address, &h.Email, &h.Password); err != nil {
 					log.Printf("Erreur lors de la lecture des lignes: %v", err)
 					continue
 				}
@@ -104,7 +105,7 @@ func main() {
 
 			for rows.Next() {
 				var h Hairsalon
-				if err := rows.Scan(&h.IDHairsalon, &h.Name, &h.Address, &h.Email); err != nil {
+				if err := rows.Scan(&h.IDHairsalon, &h.Name, &h.Address, &h.Email, &h.Password); err != nil {
 					log.Printf("Erreur lors de la lecture des lignes: %v", err)
 					continue
 				}
