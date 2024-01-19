@@ -82,10 +82,45 @@ func main() {
 		}
 
 		data := HairsalonPageData{
-			PageTitle:  "Liste des salons de coiffure",
+			PageTitle:  "Salons de coiffure",
 			Hairsalons: hairsalons,
 		}
 		tmplHairSalons.Execute(w, data)
+	})
+
+	/* template pour affichage des salons de coiffure */
+	tmplHome := template.Must(template.ParseFiles("templates/accueil.html"))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		var hairsalons []Hairsalon
+
+		if db != nil {
+			rows, err := db.Query("SELECT * FROM hairsalon LIMIT 3")
+			if err != nil {
+				log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+				http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+				return
+			}
+			defer rows.Close()
+
+			for rows.Next() {
+				var h Hairsalon
+				if err := rows.Scan(&h.IDHairsalon, &h.Name, &h.Address, &h.Email); err != nil {
+					log.Printf("Erreur lors de la lecture des lignes: %v", err)
+					continue
+				}
+				hairsalons = append(hairsalons, h)
+			}
+
+			if err := rows.Err(); err != nil {
+				log.Printf("Erreur lors de la récupération des lignes: %v", err)
+			}
+		}
+
+		data := HairsalonPageData{
+			PageTitle:  "Accueil",
+			Hairsalons: hairsalons,
+		}
+		tmplHome.Execute(w, data)
 	})
 
 	/* listen and serve */
