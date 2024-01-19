@@ -80,7 +80,7 @@ func main() {
 		tmplHairSalons.Execute(w, data)
 	})
 
-	tmplAccount := template.Must(template.ParseFiles("templates/compte-utilisateur.html"))
+	tmplCustomerAccount := template.Must(template.ParseFiles("templates/compte-utilisateur.html"))
 	http.HandleFunc("/compte-utilisateur", func(w http.ResponseWriter, r *http.Request) {
 		var hairdressers []Hairdresser
 
@@ -111,7 +111,7 @@ func main() {
 			PageTitle:    "Compte utilisateur",
 			Hairdressers: hairdressers,
 		}
-		tmplAccount.Execute(w, data)
+		tmplCustomerAccount.Execute(w, data)
 	})
 
 	log.Println("Le serveur démarre sur le port :80")
