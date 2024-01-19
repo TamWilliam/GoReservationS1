@@ -89,7 +89,7 @@ func main() {
 		tmplHairSalons.Execute(w, data)
 	})
 
-	/* template pour affichage des salons de coiffure */
+	/* template pour affichage de l'accueil */
 	tmplHome := template.Must(template.ParseFiles("templates/accueil.html"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var hairsalons []Hairsalon
