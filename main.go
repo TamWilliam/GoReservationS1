@@ -14,7 +14,7 @@ const (
 	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "domapi92"
+	password = "root"
 	dbname   = "projetgoreservation"
 )
 
@@ -46,8 +46,8 @@ func main() {
 		panic(err)
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/salon-de-coiffure.html"))
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	tmplHairSalons := template.Must(template.ParseFiles("templates/salon-de-coiffure.html"))
+	http.HandleFunc("/salon-de-coiffure", func(w http.ResponseWriter, r *http.Request) {
 		var hairdressers []Hairdresser
 
 		if db != nil {
@@ -77,7 +77,41 @@ func main() {
 			PageTitle:    "Liste des coiffeurs",
 			Hairdressers: hairdressers,
 		}
-		tmpl.Execute(w, data)
+		tmplHairSalons.Execute(w, data)
+	})
+
+	tmplAccount := template.Must(template.ParseFiles("templates/compte-utilisateur.html"))
+	http.HandleFunc("/compte-utilisateur", func(w http.ResponseWriter, r *http.Request) {
+		var hairdressers []Hairdresser
+
+		if db != nil {
+			rows, err := db.Query("SELECT * FROM hairdresser")
+			if err != nil {
+				log.Printf("Erreur lors de l'exécution de la requête: %v", err)
+				http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
+				return
+			}
+			defer rows.Close()
+
+			for rows.Next() {
+				var h Hairdresser
+				if err := rows.Scan(&h.IDHairdresser, &h.FirstName, &h.LastName, &h.IDHairSalon); err != nil {
+					log.Printf("Erreur lors de la lecture des lignes: %v", err)
+					continue
+				}
+				hairdressers = append(hairdressers, h)
+			}
+
+			if err := rows.Err(); err != nil {
+				log.Printf("Erreur lors de la récupération des lignes: %v", err)
+			}
+		}
+
+		data := HairdresserPageData{
+			PageTitle:    "Compte utilisateur",
+			Hairdressers: hairdressers,
+		}
+		tmplAccount.Execute(w, data)
 	})
 
 	log.Println("Le serveur démarre sur le port :80")
