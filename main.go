@@ -53,8 +53,9 @@ func main() {
 	fs := http.FileServer(http.Dir("assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
-	tmpl := template.Must(template.ParseFiles("templates/salon-de-coiffure.html"))
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	/* template pour affichage des salons de coiffure */
+	tmplHairSalons := template.Must(template.ParseFiles("templates/salon-de-coiffure.html"))
+	http.HandleFunc("/salon-de-coiffure", func(w http.ResponseWriter, r *http.Request) {
 		var hairsalons []Hairsalon
 
 		if db != nil {
@@ -84,9 +85,10 @@ func main() {
 			PageTitle:  "Liste des salons de coiffure",
 			Hairsalons: hairsalons,
 		}
-		tmpl.Execute(w, data)
+		tmplHairSalons.Execute(w, data)
 	})
 
+	/* listen and serve */
 	log.Println("Le serveur démarre sur le port :80")
 	err = http.ListenAndServe(":80", nil)
 	if err != nil {
