@@ -10,11 +10,11 @@
   <body>
     <h1>{{.PageTitle}}</h1>
     <ul>
-      {{range .Todos}} {{if .Done}}
-      <li class="done">{{.Title}}</li>
+      {{range .Hairdressers}}
+        <li>{{.FirstName}} {{.LastName}}</li>
       {{else}}
-      <li>{{.Title}}</li>
-      {{end}} {{end}}
+        <p>Aucun coiffeur trouvé.</p>
+      {{end}}
     </ul>
   </body>
 </html>
