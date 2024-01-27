@@ -1,0 +1,20 @@
+{{ template "base" . }}
+
+{{ define "content" }}
+    <h1>Inscription</h1>
+    <form method="POST" action="/signup">
+        <label for="firstName">Prenom:</label><br>
+        <input type="firstName" id="firstName" name="firstName" required><br>
+
+        <label for="lastName"> Nom:</label><br>
+        <input type="lastName" id="lastName" name="lastName" required><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="password">Mot de passe:</label><br>
+        <input type="password" id="password" name="password" required><br>
+        
+        <button type="submit">S'inscrire</button>
+    </form>
+{{ end }}

@@ -1,0 +1,23 @@
+{
+  "name": "projetgoreservation",
+  "version": "1.0.0",
+  "description": "Le but est de créer une solution de réservation pour les salons de coiffure un peu à la façon de Planity sur la technologie Go Il y 3 types d’utilisateurs :   – Les salons de coiffure qui peuvent donner leurs créneaux d’ouverture (par salon et par coiffeur)   – Les clients qui, après s’être connectés, peuvent réserver un créneau   – Les administrateurs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TamWilliam/ProjetGoReservation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TamWilliam/ProjetGoReservation/issues"
+  },
+  "homepage": "https://github.com/TamWilliam/ProjetGoReservation#readme",
+  "dependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
