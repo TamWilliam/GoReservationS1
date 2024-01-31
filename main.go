@@ -2,96 +2,158 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
 
-	_ "image/png"
-
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "domapi92"
-	dbname   = "projetgoreservation"
-)
-
-type Hairsalon struct {
-	IDHairsalon int
-	Name        string
-	Address     string
-	Email       string
+type Customer struct {
+	Id        int    `json:"id_customer"`
+	Role      int    `json:"role"`
+	Firstname string `json:"firstname"`
+	Lastname  string `json:"lastname"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 }
 
-type HairsalonPageData struct {
-	PageTitle  string
-	Hairsalons []Hairsalon
-}
+var db *sql.DB
 
-func main() {
-
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
-	db, err := sql.Open("postgres", psqlInfo)
+func initDB() {
+	var err error
+	connStr := "user=postgres dbname=projetgoreservation password=domapi92 sslmode=disable"
+	db, err = sql.Open("postgres", connStr)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+}
 
-	/* gestion des assets statiques */
-	fs := http.FileServer(http.Dir("assets"))
-	http.Handle("/assets/", http.StripPrefix("/assets/", fs))
-
-	/* template pour affichage des salons de coiffure */
-	tmplHairSalons := template.Must(template.ParseFiles("templates/salon-de-coiffure.html"))
-	http.HandleFunc("/salon-de-coiffure", func(w http.ResponseWriter, r *http.Request) {
-		var hairsalons []Hairsalon
-
-		if db != nil {
-			rows, err := db.Query("SELECT * FROM hairsalon")
-			if err != nil {
-				log.Printf("Erreur lors de l'exécution de la requête: %v", err)
-				http.Error(w, "Erreur interne du serveur", http.StatusInternalServerError)
-				return
-			}
-			defer rows.Close()
-
-			for rows.Next() {
-				var h Hairsalon
-				if err := rows.Scan(&h.IDHairsalon, &h.Name, &h.Address, &h.Email); err != nil {
-					log.Printf("Erreur lors de la lecture des lignes: %v", err)
-					continue
-				}
-				hairsalons = append(hairsalons, h)
-			}
-
-			if err := rows.Err(); err != nil {
-				log.Printf("Erreur lors de la récupération des lignes: %v", err)
-			}
-		}
-
-		data := HairsalonPageData{
-			PageTitle:  "Liste des salons de coiffure",
-			Hairsalons: hairsalons,
-		}
-		tmplHairSalons.Execute(w, data)
-	})
-
-	/* listen and serve */
-	log.Println("Le serveur démarre sur le port :80")
-	err = http.ListenAndServe(":80", nil)
+func getCustomersJSON(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query("SELECT * FROM customer")
 	if err != nil {
-		log.Fatal("Erreur lors du démarrage du serveur: ", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+	defer rows.Close()
+
+	customers := make([]Customer, 0)
+	for rows.Next() {
+		var c Customer
+		if err := rows.Scan(&c.Id, &c.Role, &c.Firstname, &c.Lastname, &c.Email, &c.Password); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		customers = append(customers, c)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(customers)
+}
+
+func deleteCustomer(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	customerID, ok := vars["id_customer"]
+	if !ok {
+		http.Error(w, "ID du client manquant", http.StatusBadRequest)
+		return
+	}
+
+	log.Printf("Tentative de suppression du client avec l'ID : %s\n", customerID)
+
+	result, err := db.Exec("DELETE FROM customer WHERE id_customer = $1", customerID)
+	if err != nil {
+		log.Printf("Erreur lors de la suppression du client : %s\n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	log.Printf("Nombre de lignes affectées : %d\n", rowsAffected)
+
+	w.WriteHeader(http.StatusNoContent)
+	log.Printf("Client avec l'ID %s supprimé avec succès\n", customerID)
+}
+
+func getCustomersHTML(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("templates/customer_list.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := db.Query("SELECT * FROM customer")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	customers := make([]Customer, 0)
+	for rows.Next() {
+		var c Customer
+		if err := rows.Scan(&c.Id, &c.Role, &c.Firstname, &c.Lastname, &c.Email, &c.Password); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		customers = append(customers, c)
+	}
+
+	tmpl.Execute(w, customers)
+}
+
+func fetchCustomers() ([]Customer, error) {
+	// remplacez par l'URL de l'api
+	resp, err := http.Get("http://localhost:8000/customers")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var customers []Customer
+	err = json.NewDecoder(resp.Body).Decode(&customers)
+	if err != nil {
+		return nil, err
+	}
+
+	return customers, nil
+}
+
+func serveTemplate(w http.ResponseWriter, r *http.Request) {
+	customers, err := fetchCustomers()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	t, err := template.ParseFiles("template.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = t.Execute(w, customers)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func main() {
+	initDB()
+	defer db.Close()
+
+	r := mux.NewRouter()
+	r.HandleFunc("/api/customers", getCustomersJSON).Methods("GET")
+	r.HandleFunc("/api/customers/{id}", deleteCustomer).Methods("DELETE") // Nouvelle route pour la suppression
+	r.HandleFunc("/customers", getCustomersHTML).Methods("GET")
+	r.HandleFunc("/view-customers", serveTemplate)
+
+	log.Fatal(http.ListenAndServe(":8000", r))
 }
