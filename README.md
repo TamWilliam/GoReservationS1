@@ -5,3 +5,9 @@ Il y 3 types d’utilisateurs :
     salon et par coiffeur)
   – Les clients qui, après s’être connectés, peuvent réserver un créneau
   – Les administrateurs
+
+# Install mux
+go get -u github.com/gorilla/mux
+
+# Install pq
+go get -u github.com/lib/pq
