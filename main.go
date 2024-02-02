@@ -24,7 +24,7 @@ var db *sql.DB
 
 func initDB() {
 	var err error
-	connStr := "user=postgres dbname=projetgoreservation password=domapi92 sslmode=disable"
+	connStr := "user=postgres dbname=projetgoreservation password=Coucou92! sslmode=disable"
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
@@ -126,6 +126,32 @@ func fetchCustomers() ([]Customer, error) {
 	return customers, nil
 }
 
+func getCustomerByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	customerID, ok := vars["id_customer"]
+	if !ok {
+		http.Error(w, "ID du client manquant", http.StatusBadRequest)
+		return
+	}
+
+	var c Customer
+	err := db.QueryRow("SELECT * FROM customer WHERE id_customer = $1", customerID).Scan(
+		&c.Id, &c.Role, &c.Firstname, &c.Lastname, &c.Email, &c.Password,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	t, err := template.ParseFiles("templates/customer_details.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	t.Execute(w, c)
+}
+
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	customers, err := fetchCustomers()
 	if err != nil {
@@ -153,6 +179,7 @@ func main() {
 	r.HandleFunc("/api/customers", getCustomersJSON).Methods("GET")
 	r.HandleFunc("/api/customers/{id}", deleteCustomer).Methods("DELETE") // Nouvelle route pour la suppression
 	r.HandleFunc("/customers", getCustomersHTML).Methods("GET")
+	r.HandleFunc("/compte-customers/{id}", getCustomerByID).Methods("GET")
 	r.HandleFunc("/view-customers", serveTemplate)
 
 	log.Fatal(http.ListenAndServe(":8000", r))
