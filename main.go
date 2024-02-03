@@ -31,6 +31,7 @@ type Hairdresserschedule struct {
 	Id_hairdresser int       `json:"id_hairdresser"`
 	Day            int       `json:"day"`
 	Startshift     time.Time `json:"startshift"`
+	Endshift       time.Time `json:"endshift"`
 }
 
 type Hairsalon struct {
@@ -39,6 +40,22 @@ type Hairsalon struct {
 	Address  string `json:"address"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type Openinghours struct {
+	Id           int       `json:"id_openinghours"`
+	Id_hairsalon int       `json:"id_hairsalon"`
+	Day          int       `json:"day"`
+	Opening      time.Time `json:"opening"`
+	Closing      time.Time `json:"closing"`
+}
+
+type Reservation struct {
+	Id               int       `json:"id_reservation"`
+	Id_customer      int       `json:"id_customer"`
+	Id_hairsalon     int       `json:"id_hairsalon"`
+	Id_hairdresser   int       `json:"id_hairdresser"`
+	Reservation_date time.Time `json:"reservation_date"`
 }
 
 var db *sql.DB
@@ -245,18 +262,18 @@ func createHairdresser(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-func getHairdresserSchedules(c *gin.Context) {
-	rows, err := db.Query("SELECT id_hairdresserschedule, id_hairdresser, day, startshift FROM hairdresserschedule")
+func getAllHairdresserSchedules(c *gin.Context) {
+	rows, err := db.Query("SELECT id_hairdresserschedule, id_hairdresser, day, startshift, endshift FROM hairdresserschedule")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	defer rows.Close()
 
-	schedules := make([]Hairdresserschedule, 0)
+	var schedules []Hairdresserschedule
 	for rows.Next() {
 		var schedule Hairdresserschedule
-		if err := rows.Scan(&schedule.Id, &schedule.Id_hairdresser, &schedule.Day, &schedule.Startshift); err != nil {
+		if err := rows.Scan(&schedule.Id, &schedule.Id_hairdresser, &schedule.Day, &schedule.Startshift, &schedule.Endshift); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
@@ -269,7 +286,7 @@ func getHairdresserSchedules(c *gin.Context) {
 func getHairdresserSchedule(c *gin.Context) {
 	id := c.Param("id")
 	var schedule Hairdresserschedule
-	err := db.QueryRow("SELECT id_hairdresserschedule, id_hairdresser, day, startshift FROM hairdresserschedule WHERE id_hairdresserschedule = $1", id).Scan(&schedule.Id, &schedule.Id_hairdresser, &schedule.Day, &schedule.Startshift)
+	err := db.QueryRow("SELECT id_hairdresserschedule, id_hairdresser, day, startshift, endshift FROM hairdresserschedule WHERE id_hairdresserschedule = $1", id).Scan(&schedule.Id, &schedule.Id_hairdresser, &schedule.Day, &schedule.Startshift, &schedule.Endshift)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Aucun horaire trouvé avec l'ID spécifié"})
@@ -289,7 +306,7 @@ func createHairdresserSchedule(c *gin.Context) {
 		return
 	}
 
-	_, err := db.Exec("INSERT INTO hairdresserschedule (id_hairdresser, day, startshift) VALUES ($1, $2, $3)", schedule.Id_hairdresser, schedule.Day, schedule.Startshift)
+	_, err := db.Exec("INSERT INTO hairdresserschedule (id_hairdresser, day, startshift, endshift) VALUES ($1, $2, $3, $4)", schedule.Id_hairdresser, schedule.Day, schedule.Startshift, schedule.Endshift)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -306,7 +323,7 @@ func updateHairdresserSchedule(c *gin.Context) {
 		return
 	}
 
-	_, err := db.Exec("UPDATE hairdresserschedule SET id_hairdresser = $1, day = $2, startshift = $3 WHERE id_hairdresserschedule = $4", schedule.Id_hairdresser, schedule.Day, schedule.Startshift, id)
+	_, err := db.Exec("UPDATE hairdresserschedule SET id_hairdresser = $1, day = $2, startshift = $3, endshift = $4 WHERE id_hairdresserschedule = $5", schedule.Id_hairdresser, schedule.Day, schedule.Startshift, schedule.Endshift, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -431,6 +448,192 @@ func deleteHairsalon(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+func getAllOpeningHours(c *gin.Context) {
+	rows, err := db.Query("SELECT id_openinghours, id_hairsalon, day, opening, closing FROM openinghours")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	var hoursList []Openinghours
+	for rows.Next() {
+		var hours Openinghours
+		if err := rows.Scan(&hours.Id, &hours.Id_hairsalon, &hours.Day, &hours.Opening, &hours.Closing); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		hoursList = append(hoursList, hours)
+	}
+
+	c.JSON(http.StatusOK, hoursList)
+}
+
+func getOpeningHours(c *gin.Context) {
+	id := c.Param("id")
+	var hours Openinghours
+	err := db.QueryRow("SELECT id_openinghours, id_hairsalon, day, opening, closing FROM openinghours WHERE id_openinghours = $1", id).Scan(&hours.Id, &hours.Id_hairsalon, &hours.Day, &hours.Opening, &hours.Closing)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Aucune heure d'ouverture trouvée avec l'ID spécifié"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, hours)
+}
+
+func createOpeningHours(c *gin.Context) {
+	var hours Openinghours
+	if err := c.ShouldBindJSON(&hours); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err := db.Exec("INSERT INTO openinghours (id_hairsalon, day, opening, closing) VALUES ($1, $2, $3, $4)", hours.Id_hairsalon, hours.Day, hours.Opening, hours.Closing)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusCreated)
+}
+
+func updateOpeningHours(c *gin.Context) {
+	id := c.Param("id")
+	var hours Openinghours
+	if err := c.ShouldBindJSON(&hours); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err := db.Exec("UPDATE openinghours SET id_hairsalon = $1, day = $2, opening = $3, closing = $4 WHERE id_openinghours = $5", hours.Id_hairsalon, hours.Day, hours.Opening, hours.Closing, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func deleteOpeningHours(c *gin.Context) {
+	id := c.Param("id")
+
+	result, err := db.Exec("DELETE FROM openinghours WHERE id_openinghours = $1", id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Aucune heure d'ouverture trouvée avec l'ID spécifié"})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func getAllReservations(c *gin.Context) {
+	rows, err := db.Query("SELECT id_reservation, id_customer, id_hairsalon, id_hairdresser, reservation_date FROM reservation")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	var reservations []Reservation
+	for rows.Next() {
+		var reservation Reservation
+		if err := rows.Scan(&reservation.Id, &reservation.Id_customer, &reservation.Id_hairsalon, &reservation.Id_hairdresser, &reservation.Reservation_date); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		reservations = append(reservations, reservation)
+	}
+
+	c.JSON(http.StatusOK, reservations)
+}
+
+func getReservation(c *gin.Context) {
+	id := c.Param("id")
+	var reservation Reservation
+	err := db.QueryRow("SELECT id_reservation, id_customer, id_hairsalon, id_hairdresser, reservation_date FROM reservation WHERE id_reservation = $1", id).Scan(&reservation.Id, &reservation.Id_customer, &reservation.Id_hairsalon, &reservation.Id_hairdresser, &reservation.Reservation_date)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Aucune réservation trouvée avec l'ID spécifié"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, reservation)
+}
+
+func createReservation(c *gin.Context) {
+	var reservation Reservation
+	if err := c.ShouldBindJSON(&reservation); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err := db.Exec("INSERT INTO reservation (id_customer, id_hairsalon, id_hairdresser, reservation_date) VALUES ($1, $2, $3, $4)", reservation.Id_customer, reservation.Id_hairsalon, reservation.Id_hairdresser, reservation.Reservation_date)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusCreated)
+}
+
+func updateReservation(c *gin.Context) {
+	id := c.Param("id")
+	var reservation Reservation
+	if err := c.ShouldBindJSON(&reservation); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err := db.Exec("UPDATE reservation SET id_customer = $1, id_hairsalon = $2, id_hairdresser = $3, reservation_date = $4 WHERE id_reservation = $5", reservation.Id_customer, reservation.Id_hairsalon, reservation.Id_hairdresser, reservation.Reservation_date, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+func deleteReservation(c *gin.Context) {
+	id := c.Param("id")
+
+	result, err := db.Exec("DELETE FROM reservation WHERE id_reservation = $1", id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Aucune réservation trouvée avec l'ID spécifié"})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
 func main() {
 	initDB()
 	defer db.Close()
@@ -450,7 +653,7 @@ func main() {
 	router.DELETE("/hairdresser/:id", deleteHairdresser)
 
 	router.POST("/hairdresserschedule", createHairdresserSchedule)
-	router.GET("/hairdresserschedules", getHairdresserSchedules)
+	router.GET("/hairdresserschedules", getAllHairdresserSchedules)
 	router.GET("/hairdresserschedule/:id", getHairdresserSchedule)
 	router.PUT("/hairdresserschedule/:id", updateHairdresserSchedule)
 	router.DELETE("/hairdresserschedule/:id", deleteHairdresserSchedule)
@@ -460,6 +663,18 @@ func main() {
 	router.GET("/hairsalon/:id", getHairsalon)
 	router.PUT("/hairsalon/:id", updateHairsalon)
 	router.DELETE("/hairsalon/:id", deleteHairsalon)
+
+	router.POST("/openinghours", createOpeningHours)
+	router.GET("/openinghours", getAllOpeningHours)
+	router.GET("/openinghours/:id", getOpeningHours)
+	router.PUT("/openinghours/:id", updateOpeningHours)
+	router.DELETE("/openinghours/:id", deleteOpeningHours)
+
+	router.POST("/reservation", createReservation)
+	router.GET("/reservations", getAllReservations)
+	router.GET("/reservation/:id", getReservation)
+	router.PUT("/reservation/:id", updateReservation)
+	router.DELETE("/reservation/:id", deleteReservation)
 
 	router.Run(":8000")
 }
