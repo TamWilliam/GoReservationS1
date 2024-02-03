@@ -24,7 +24,7 @@ var db *sql.DB
 
 func initDB() {
 	var err error
-	connStr := "user=postgres dbname=projetgoreservation password=Coucou92! sslmode=disable"
+	connStr := "user=postgres dbname=projetgoreservation password=Coucou75! sslmode=disable"
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +37,7 @@ func initDB() {
 }
 
 func getCustomersJSON(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT * FROM customer")
+	rows, err := db.Query("SELECT * FROM customers")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -68,7 +68,7 @@ func deleteCustomer(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Tentative de suppression du client avec l'ID : %s\n", customerID)
 
-	result, err := db.Exec("DELETE FROM customer WHERE id_customer = $1", customerID)
+	result, err := db.Exec("DELETE FROM customers WHERE id_customer = $1", customerID)
 	if err != nil {
 		log.Printf("Erreur lors de la suppression du client : %s\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -89,7 +89,7 @@ func getCustomersHTML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows, err := db.Query("SELECT * FROM customer")
+	rows, err := db.Query("SELECT * FROM customers")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -135,7 +135,7 @@ func getCustomerByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var c Customer
-	err := db.QueryRow("SELECT * FROM customer WHERE id_customer = $1", customerID).Scan(
+	err := db.QueryRow("SELECT * FROM customers WHERE id_customer = $1", customerID).Scan(
 		&c.Id, &c.Role, &c.Firstname, &c.Lastname, &c.Email, &c.Password,
 	)
 	if err != nil {
