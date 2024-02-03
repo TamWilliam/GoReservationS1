@@ -22,7 +22,7 @@ type Customer struct {
 // fetchCustomers récupère les données des clients depuis votre API.
 func fetchCustomers() ([]Customer, error) {
 	// Remplacez par l'URL de votre API
-	resp, err := http.Get("http://localhost:8000/customers")
+	resp, err := http.Get("http://localhost:6060/customers")
 	if err != nil {
 		return nil, err
 	}
