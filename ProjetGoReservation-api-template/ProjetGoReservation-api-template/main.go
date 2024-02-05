@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -46,7 +46,7 @@ func listCustomers(c *gin.Context) {
 	defer resp.Body.Close()
 
 	// Lire le corps de la réponse
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to read response from customers API"})
 		return
@@ -120,8 +120,42 @@ func createCustomerPost(c *gin.Context) {
 }
 
 func editCustomer(c *gin.Context) {
-	//id := c.Param("id")
-	// Récupérer le client par ID et passer les données au template edit_customer.html
+	id := c.Param("id")
+
+	// Récupérer le client par ID depuis l'API
+	apiUrl := fmt.Sprintf("http://localhost:6060/customer/%s", id)
+	client := &http.Client{}
+	response, err := client.Get(apiUrl)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch customer data from API"})
+		return
+	}
+	defer response.Body.Close()
+
+	// Vérifier le statut de la réponse
+	if response.StatusCode != http.StatusOK {
+		// Lire le corps de la réponse pour plus d'informations
+		responseBody, err := io.ReadAll(response.Body)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response from API"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "API did not return customer data", "response": string(responseBody)})
+		return
+	}
+
+	/* décoder les données JSON de la réponse */
+	var customer Customer
+	if err := json.NewDecoder(response.Body).Decode(&customer); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode customer data"})
+		return
+	}
+
+	// Passer les données au template edit_customer.html
+	c.HTML(http.StatusOK, "edit_customer.html", gin.H{
+		"title":    "Edit Customer",
+		"customer": customer,
+	})
 }
 
 func updateCustomerPost(c *gin.Context) {

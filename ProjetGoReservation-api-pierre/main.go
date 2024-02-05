@@ -121,8 +121,8 @@ func createCustomer(c *gin.Context) {
 
 	customer.Role = 0 /* pour avoir le rôle par défaut à 0, c'est-à-dire un utilisateur non administrateur */
 
-	_, err := db.Exec("INSERT INTO customers (role, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5)",
-		customer.Role, customer.FirstName, customer.LastName, customer.Email, customer.Password)
+	_, err := db.Exec("INSERT INTO customers (id_customer, role, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5, $6)",
+		customer.IDCustomer, customer.Role, customer.FirstName, customer.LastName, customer.Email, customer.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
