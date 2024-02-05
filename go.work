@@ -1,0 +1,6 @@
+go 1.21.6
+
+use (
+	./ProjetGoReservation-api-pierre
+	./ProjetGoReservation-api-template/ProjetGoReservation-api-template
+)
