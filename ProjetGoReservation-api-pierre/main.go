@@ -62,7 +62,7 @@ var db *sql.DB
 
 func initDB() {
 	var err error
-	connStr := "user=postgres dbname=projetgoreservation password=Coucou75! sslmode=disable"
+	connStr := "user=postgres dbname=projetgo password=domapi92 sslmode=disable"
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
@@ -119,10 +119,8 @@ func createCustomer(c *gin.Context) {
 		return
 	}
 
-	customer.Role = 0 /* pour avoir le rôle par défaut à 0, c'est-à-dire un utilisateur non administrateur */
-
-	_, err := db.Exec("INSERT INTO customers (id_customer, role, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5, $6)",
-		customer.IDCustomer, customer.Role, customer.FirstName, customer.LastName, customer.Email, customer.Password)
+	_, err := db.Exec("INSERT INTO customers (role, first_name, last_name, email, password) VALUES ($1, $2, $3, $4, $5)",
+		customer.Role, customer.FirstName, customer.LastName, customer.Email, customer.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
