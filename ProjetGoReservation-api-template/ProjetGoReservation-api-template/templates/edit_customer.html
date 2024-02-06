@@ -1,6 +1,18 @@
 {{ define "content" }}
 <h2>Edit Customer</h2>
 <form action="/customer/edit/{{ .IDCustomer }}" method="post">
-    <!-- Les champs de formulaire similaires à new_customer.html mais pré-remplis avec les valeurs existantes -->
+    <label for="firstName">First Name:</label>
+    <input type="text" id="firstName" name="firstName" value="{{ .FirstName }}" required><br>
+
+    <label for="lastName">Last Name:</label>
+    <input type="text" id="lastName" name="lastName" value="{{ .LastName }}" required><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="{{ .Email }}" required><br>
+
+    <label for="phone">Phone:</label>
+    <input type="tel" id="phone" name="phone" value="{{ .Phone }}"><br>
+
+    <input type="submit" value="Save">
 </form>
 {{ end }}
