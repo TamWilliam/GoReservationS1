@@ -1,18 +1,27 @@
 {{ define "content" }}
-<h2>Edit Customer</h2>
+<h1>Bonjour {{ .FirstName }} {{ .LastName }} !</h1>
+<h2>Modification des informations</h2>
 <form action="/customer/edit/{{ .IDCustomer }}" method="post">
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" name="firstName" value="{{ .FirstName }}" required><br>
 
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastName" name="lastName" value="{{ .LastName }}" required><br>
+    <div class="form-group">
+        <label for="firstName">Prénom :</label>
+        <input type="text" class="form-control" id="firstName" name="FirstName" value="{{ .FirstName }}" required><br>
+    </div>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" value="{{ .Email }}" required><br>
+    <div class="form-group">
+        <label for="lastName">Nom :</label>
+        <input type="text" class="form-control" id="lastName" name="LastName" value="{{ .LastName }}" required><br>
+    </div>
 
-    <label for="phone">Phone:</label>
-    <input type="tel" id="phone" name="phone" value="{{ .Phone }}"><br>
+    <div class="form-group">
+        <label for="email">Adresse mail :</label>
+        <input type="email" class="form-control" id="email" name="Email" value="{{ .Email }}" required><br>
+    </div>
 
-    <input type="submit" value="Sauvegarder mes modifications">
+    <div class="form-group">
+        <label for="password">Mot de passe :</label>
+        <input type="password" class="form-control" id="password" name="Password" value="{{ .Password }}"><br>
+    </div>
+    <input type="submit" class="btn btn-warning" value="Sauvegarder mes modifications">
 </form>
 {{ end }}
