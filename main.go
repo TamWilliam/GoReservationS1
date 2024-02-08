@@ -14,11 +14,44 @@ type Customer struct {
 	FirstName  string `json:"first_name"`
 	LastName   string `json:"last_name"`
 	Email      string `json:"email"`
+	Password   string `json:"password"`
 }
 
 func main() {
 	router := gin.Default()
+
+	// Charger les templates
 	router.LoadHTMLGlob("templates/*")
+
+	// Définir la route pour afficher le formulaire de connexion
+	router.GET("/login", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "login.html", nil)
+	})
+
+	// Définir la route pour traiter les données du formulaire
+	router.POST("/login", func(c *gin.Context) {
+		email := c.PostForm("email")
+		password := c.PostForm("password")
+
+		customers, err := getCustomers()
+		if err != nil {
+			// Gérer l'erreur
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Problème lors de la récupération des clients"})
+			return
+		}
+
+		for _, customer := range customers {
+			println(customer.IDCustomer, customer.Email, customer.Password)
+			if customer.Email == email && customer.Password == password {
+				// Utilisateur trouvé, gérer la connexion
+				c.JSON(http.StatusOK, gin.H{"message": "Connexion réussie"})
+				return
+			}
+		}
+
+		// Si aucun utilisateur correspondant n'a été trouvé
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email ou mot de passe incorrect"})
+	})
 
 	router.GET("/customers", listCustomers)
 	// Définissez d'autres routes pour new, edit, delete
@@ -30,6 +63,27 @@ func main() {
 	//router.GET("/customer/delete/:id", deleteCustomer)
 
 	router.Run(":8080")
+}
+
+func getCustomers() ([]Customer, error) {
+	resp, err := http.Get("http://localhost:6060/customers")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var customers []Customer
+	err = json.Unmarshal(body, &customers)
+	if err != nil {
+		return nil, err
+	}
+
+	return customers, nil
 }
 
 func listCustomers(c *gin.Context) {
