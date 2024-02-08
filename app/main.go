@@ -38,11 +38,11 @@ type PageVariables struct {
 var tmpl *template.Template
 
 func init() {
-	tmpl = template.Must(template.ParseFiles("templates/reservation.html", "templates/confirmation.html"))
+	tmpl = template.Must(template.ParseFiles("templates/reservation.html", "templates/confirmation_reservation.html"))
 }
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -67,7 +67,7 @@ func main() {
 				return
 			}
 
-			http.Redirect(w, r, "/confirmation", http.StatusSeeOther)
+			http.Redirect(w, r, "/confirmation_reservation", http.StatusSeeOther)
 			return
 		}
 
@@ -97,6 +97,16 @@ func main() {
 		}
 
 		tmpl.Execute(w, pageVariables)
+	},
+	)
+
+	http.HandleFunc("/confirmation_reservation", func(w http.ResponseWriter, r *http.Request) {
+
+		confirmationPageVariables := PageVariables{
+			PageTitle: "Confirmation réservation",
+		}
+
+		tmpl.ExecuteTemplate(w, "confirmation_reservation.html", confirmationPageVariables)
 	})
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
