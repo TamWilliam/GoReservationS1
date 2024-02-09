@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -62,7 +63,7 @@ var db *sql.DB
 
 func initDB() {
 	var err error
-	connStr := "user=postgres dbname=projetgoreservation password=Coucou75! sslmode=disable"
+	connStr := "user=postgres dbname=projetgo password=domapi92 sslmode=disable"
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
@@ -132,6 +133,7 @@ func createCustomer(c *gin.Context) {
 func updateCustomer(c *gin.Context) {
 	id := c.Param("id")
 	var customer Customer
+	fmt.Println(c.Request.GetBody())
 	if err := c.ShouldBindJSON(&customer); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -591,7 +593,7 @@ func main() {
 	router.POST("/customer", createCustomer)
 	router.GET("/customers", getCustomers)
 	router.GET("/customer/:id", getCustomer)
-	router.PUT("/customer/:id", updateCustomer)
+	router.POST("/customer/:id", updateCustomer)
 	router.DELETE("/customer/:id", deleteCustomer)
 
 	router.POST("/hairdresser", createHairdresser)       // Créer un coiffeur

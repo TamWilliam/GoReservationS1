@@ -38,7 +38,6 @@ func listCustomers(c *gin.Context) {
 	// URL de l'API pour récupérer les clients
 	apiUrl := "http://localhost:6060/customers"
 
-	// Effectuer la requête à l'API
 	resp, err := http.Get(apiUrl)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to request customers data"})
@@ -121,6 +120,7 @@ func createCustomerPost(c *gin.Context) {
 }
 
 func editCustomer(c *gin.Context) {
+
 	id := c.Param("id")
 
 	// Récupérer le client par ID depuis l'API
@@ -141,6 +141,7 @@ func editCustomer(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response from API"})
 			return
 		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "API did not return customer data", "response": string(responseBody)})
 		return
 	}
@@ -151,7 +152,6 @@ func editCustomer(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode customer data"})
 		return
 	}
-
 	// Passer les données au template edit_customer.html
 	c.HTML(http.StatusOK, "edit_customer.html", gin.H{
 		"title":    "Edit Customer",
@@ -161,4 +161,5 @@ func editCustomer(c *gin.Context) {
 
 func updateCustomerPost(c *gin.Context) {
 	// Logique pour traiter les données du formulaire et mettre à jour le client
+	println(c.Request.GetBody())
 }
