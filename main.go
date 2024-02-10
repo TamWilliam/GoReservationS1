@@ -75,7 +75,7 @@ func initDB() {
 }
 
 func getCustomers(c *gin.Context) {
-	rows, err := db.Query("SELECT id_customer, role, first_name, last_name, email, password FROM customers")
+	rows, err := db.Query("SELECT id_customer, role, first_name, last_name, email, password FROM customers ORDER BY id_customer ASC")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
