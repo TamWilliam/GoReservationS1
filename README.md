@@ -37,48 +37,49 @@ Utilisation de Bootstrap pour le style
 
 ### DB
 
-- **customer**
+- **customers**
 
   - id_customer _INT_
   - role _INT_ (0 : user, 1 : admin)
-  - firstname _VARCHAR_
-  - lastname _VARCHAR_
+  - first_name _VARCHAR_
+  - last_name _VARCHAR_
   - email _VARCHAR_
   - password _VARCHAR_
 
-- **hairsalon**
+- **hair_salons**
 
-  - id_hairsalon _INT_
+  - id_hair_salon _INT_
   - name _VARCHAR_
   - address _VARCHAR_
-  - email _varchar_
+  - email _VARCHAR_
+  - password _VARCHAR
 
 - **openinghours**
 
-  - id_openinghours _INT_
-  - id_hairsalon _INT_
+  - id_opening_hours _INT_
+  - id_hair_salon _INT_
   - day _INT_
   - opening _TIME_
   - closing _TIME_
 
-- **hairdresser**
+- **hair_dressers**
 
-  - id_hairdresser _INT_
-  - id_hairsalon _INT_
-  - firstname _VARCHAR_
-  - lastname _VARCHAR_
+  - id_hair_dresser _INT_
+  - id_hair_salon _INT_
+  - first_name _VARCHAR_
+  - last_name _VARCHAR_
 
-- **hairdresserschedule**
+- **hair_dresser_schedules**
 
-  - id_hairdresserschedule _INT_
-  - id_hairdresser _INT_
+  - id_hair_dresser_schedule _INT_
+  - id_hair_dresser _INT_
   - day _INT_
-  - startshift _TIME_
-  - endshift _TIME_
+  - start_shift _TIME_
+  - end_shift _TIME_
 
-- **reservation**
+- **reservations**
   - id_reservation _INT_
   - id_customer _INT_
-  - id_hairsalon _INT_
-  - idhairdresser _INT_
+  - id_hair_salon _INT_
+  - id_hair_dresser _INT_
   - reservation_date _TIMESTAMP_
