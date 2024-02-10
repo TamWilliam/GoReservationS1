@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Clients</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Liste des Clients</h2>
+        <a href="add-customer"><span>Ajouter un client</span><a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .}}
+                <tr>
+                    <td>{{.IDCustomer}}</td>
+                    <td>{{.Email}}</td>
+                    <td>
+                        <!-- Ajouter des actions si nécessaire -->
+                        <a href="/edit-customer/{{.IDCustomer}}">Edit</a>
+                    </td>
+                    <td>
+                        <form action="/delete-customer/{{.IDCustomer}}" method="POST">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
