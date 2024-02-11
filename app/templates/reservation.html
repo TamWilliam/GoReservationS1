@@ -47,23 +47,16 @@
     </header>
 
     <main class="container mt-4">
-      <h1>{{ .PageTitle }}</h1>
+      <h1>Réservation pour le salon : {{ .Salon.Name }}</h1>
 
       <!-- Reservation Form -->
-      <form action="" method="post">
+      <form action="/reservation" method="post">
+        <input type="hidden" name="salonID" value="{{ .Salon.IDHairSalon }}" />
         <div class="mb-3">
           <label for="utilisateur" class="form-label">Utilisateur</label>
           <select class="form-control" id="utilisateur" name="utilisateur">
             {{ range .Utilisateurs }}
             <option value="{{ .IDCustomer }}">{{ .Email }}</option>
-            {{ end }}
-          </select>
-        </div>
-        <div class="mb-3">
-          <label for="salon" class="form-label">Salon</label>
-          <select class="form-control" id="salon" name="salon">
-            {{ range .Salons }}
-            <option value="{{ .IDHairSalon }}">{{ .Name }}</option>
             {{ end }}
           </select>
         </div>

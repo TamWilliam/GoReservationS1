@@ -62,7 +62,12 @@
             <li class="list-group-item">{{.Email}}</li>
           </ul>
           <div class="card-body">
-            <a href="/{{.Name}}" class="btn btn-outline-dark">Prendre RDV</a>
+            <!-- Ajout du lien vers la page de réservation avec l'ID du salon -->
+            <a
+              href="/reservation?salonID={{ .IDHairSalon }}"
+              class="btn btn-outline-dark"
+              >Prendre RDV</a
+            >
           </div>
         </div>
         {{end}}

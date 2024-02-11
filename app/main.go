@@ -33,7 +33,7 @@ type HairDresser struct {
 type PageVariables struct {
 	PageTitle    string
 	Utilisateurs []Customer
-	Salons       []HairSalon
+	Salon        HairSalon
 	Coiffeurs    []HairDresser
 }
 
@@ -68,7 +68,7 @@ func main() {
 	http.HandleFunc("/reservation", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			utilisateurID := r.FormValue("utilisateur")
-			salonID := r.FormValue("salon")
+			salonID := r.FormValue("salonID")
 			coiffeurID := r.FormValue("coiffeur")
 			date := r.FormValue("date")
 
@@ -88,9 +88,25 @@ func main() {
 			return
 		}
 
-		salons, err := getHairSalons(db)
+		salonID := r.URL.Query().Get("salonID")
+		if salonID == "" {
+			http.Error(w, "ID du salon manquant", http.StatusBadRequest)
+			return
+		}
+
+		id, err := strconv.Atoi(salonID)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "ID du salon invalide", http.StatusBadRequest)
+			return
+		}
+
+		salon, err := getHairSalonByID(db, id)
+		if err != nil {
+			http.Error(w, "Erreur lors de la récupération du salon", http.StatusInternalServerError)
+			return
+		}
+		if salon == nil {
+			http.Error(w, "Salon non trouvé", http.StatusNotFound)
 			return
 		}
 
@@ -103,7 +119,7 @@ func main() {
 		pageVariables := PageVariables{
 			PageTitle:    "Réservation",
 			Utilisateurs: utilisateurs,
-			Salons:       salons,
+			Salon:        *salon,
 			Coiffeurs:    coiffeurs,
 		}
 
@@ -185,6 +201,20 @@ func getHairSalons(db *sql.DB) ([]HairSalon, error) {
 	}
 
 	return salons, nil
+}
+
+func getHairSalonByID(db *sql.DB, id int) (*HairSalon, error) {
+	row := db.QueryRow("SELECT id_hair_salon, name, address, email FROM hair_salons WHERE id_hair_salon = $1", id)
+	var salon HairSalon
+	err := row.Scan(&salon.IDHairSalon, &salon.Name, &salon.Address, &salon.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Aucun salon trouvé avec cet ID
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &salon, nil
 }
 
 func getHairDressers(db *sql.DB) ([]HairDresser, error) {
