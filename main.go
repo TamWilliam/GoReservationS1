@@ -160,7 +160,7 @@ func deleteCustomer(c *gin.Context) {
 }
 
 func getHairdressers(c *gin.Context) {
-	rows, err := db.Query("SELECT id_hair_dresser, first_name, last_name, id_hair_salon FROM hair_dressers")
+	rows, err := db.Query("SELECT id_hair_dresser, first_name, last_name, id_hair_salon FROM hair_dressers ORDER BY id_hair_dresser ASC")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -243,7 +243,7 @@ func deleteHairdresser(c *gin.Context) {
 }
 
 func getAllHairdresserSchedules(c *gin.Context) {
-	rows, err := db.Query("SELECT id_hair_dresser_schedule, id_hair_dresser, day, start_shift, end_shift FROM hair_dresser_schedules")
+	rows, err := db.Query("SELECT id_hair_dresser_schedule, id_hair_dresser, day, start_shift, end_shift FROM hair_dresser_schedules ORDER BY id_hair_dresser_schedule ASC")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -328,7 +328,7 @@ func deleteHairdresserSchedule(c *gin.Context) {
 }
 
 func getHairsalons(c *gin.Context) {
-	rows, err := db.Query("SELECT id_hair_salon, name, address, email, password FROM hair_salons")
+	rows, err := db.Query("SELECT id_hair_salon, name, address, email, password FROM hair_salons ORDER BY id_hair_salon ASC")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -413,7 +413,7 @@ func deleteHairsalon(c *gin.Context) {
 }
 
 func getAllOpeningHours(c *gin.Context) {
-	rows, err := db.Query("SELECT id_opening_hours, id_hair_salon, day, opening, closing FROM opening_hours")
+	rows, err := db.Query("SELECT id_opening_hours, id_hair_salon, day, opening, closing FROM opening_hours ORDER BY id_opening_hours ASC")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -498,7 +498,7 @@ func deleteOpeningHours(c *gin.Context) {
 }
 
 func getAllReservations(c *gin.Context) {
-	rows, err := db.Query("SELECT id_reservation, id_customer, id_hair_salon, id_hair_dresser, reservation_date FROM reservations")
+	rows, err := db.Query("SELECT id_reservation, id_customer, id_hair_salon, id_hair_dresser, reservation_date FROM reservations ORDER BY id_reservation ASC")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
