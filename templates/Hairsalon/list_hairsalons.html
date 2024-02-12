@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des salons de coiffure</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Liste des salons de coiffure</h1>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Adresse</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range . }}
+                <tr>
+                    <td>{{ .IDHairSalon }}</td>
+                    <td>{{ .Name }}</td>
+                    <td>{{ .Address }}</td>
+                    <td>{{ .Email }}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="/edit-hairsalon/{{ .IDHairSalon }}" class="btn btn-info">Modifier</a>
+                            <form action="/delete-hairsalon/{{ .IDHairSalon }}" method="post">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+        <div class="text-center">
+            <a href="/add-hairsalon" class="btn btn-primary">Ajouter un salon de coiffure</a>
+        </div>
+    </div>
+</body>
+</html>

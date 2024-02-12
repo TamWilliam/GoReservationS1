@@ -1,0 +1,31 @@
+header {
+    background-image: url(/assets/img/header.png);
+    height: 100dvh;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin-bottom: 2rem;
+    filter : brightness(95%);
+    width: 100%;
+}
+
+h1 {
+    color:white;
+    font-size : 8rem;
+    text-shadow: black 1px 0 10px;
+    text-align: center;
+    margin-top: 30vh;
+}
+
+nav {
+    color:black !important;
+}
+
+.dev2 {
+    width: 60%;
+}
+
+.dev {
+    width: 40%;
+}

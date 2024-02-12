@@ -9,14 +9,15 @@
 <body>
     <div class="container mt-5">
         <h2>Liste des Coiffeurs</h2>
-        <a href="add-customer"><span>Ajouter un salon</span><a>
+        <a href="/add-hairdresser" class="btn btn-primary mb-2">Ajouter un coiffeur</a>
+        <a href="/" class="btn btn-secondary mb-2">Retour</a>
         <table class="table">
-            <thead>
+            <thead class="thead-dark">
                 <tr>
                     <th>ID</th>
                     <th>Prénom</th>
                     <th>Nom</th>
-                    <th>Sallon de coiffure</th>
+                    <th>Salon de coiffure</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -28,12 +29,9 @@
                     <td>{{.LastName}}</td>
                     <td>{{.IDHairSalon}}</td>
                     <td>
-                        <!-- Ajouter des actions si nécessaire -->
-                        <a href="/edit-hairdresser/{{.IDHairDresser}}">Edit</a>
-                    </td>
-                    <td>
-                        <form action="/delete-customer/{{.IDHairDresser}}" method="POST">
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        <a href="/edit-hairdresser/{{.IDHairDresser}}" class="btn btn-sm btn-info">Edit</a>
+                        <form action="/delete-hairdresser/{{.IDHairDresser}}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
                         </form>
                     </td>
                 </tr>

@@ -9,12 +9,15 @@
 <body>
     <div class="container mt-5">
         <h2>Liste des Clients</h2>
-        <a href="add-customer"><span>Ajouter un client</span><a>
+        <a href="/add-customer" class="btn btn-primary mb-2">Ajouter un client</a>
+        <a href="/" class="btn btn-secondary mb-2">Retour</a>
         <table class="table">
-            <thead>
+            <thead class="thead-dark">
                 <tr>
                     <th>ID</th>
                     <th>Email</th>
+                    <th>Nom complet</th>
+                    <th>Role</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -23,13 +26,12 @@
                 <tr>
                     <td>{{.IDCustomer}}</td>
                     <td>{{.Email}}</td>
+                    <td>{{.FirstName}} {{.LastName}}</td>
+                    <td>{{.Role}}</td>
                     <td>
-                        <!-- Ajouter des actions si nécessaire -->
-                        <a href="/edit-customer/{{.IDCustomer}}">Edit</a>
-                    </td>
-                    <td>
-                        <form action="/delete-customer/{{.IDCustomer}}" method="POST">
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        <a href="/edit-customer/{{.IDCustomer}}" class="btn btn-sm btn-info">Edit</a>
+                        <form action="/delete-customer/{{.IDCustomer}}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
                         </form>
                     </td>
                 </tr>

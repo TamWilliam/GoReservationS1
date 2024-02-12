@@ -1,5 +1,30 @@
-<h1>Accueil</h1>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    {{ if .CustomerName }}
+        <h1 class="mt-5">Bienvenue, {{ .CustomerName }}!</h1>
+    {{ else }}
+        <h1 class="mt-5">Bienvenue, visiteur!</h1>
+    {{ end }}
 
-<a href="/customers"><p>Liste des clients</p></a>
+    <div class="container mt-3">
+        <h2>Accueil</h2>
 
-<a href="/hairdressers"><p>Liste des coiffeurs</p></a>
+        <a href="/login" class="btn btn-primary mt-3">Connexion</a>
+
+        <a href="/logout" class="btn btn-danger mt-3">Déconnexion</a>
+
+        <a href="/customers" class="btn btn-info mt-3">Liste des clients</a>
+
+        <a href="/hairdressers" class="btn btn-info mt-3">Liste des coiffeurs</a>
+
+        <a href="/hairsalons" class="btn btn-info mt-3">Liste des salons de coiffure</a>
+    </div>
+</body>
+</html>
