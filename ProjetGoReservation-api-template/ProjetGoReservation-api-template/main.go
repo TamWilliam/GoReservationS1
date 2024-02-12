@@ -23,19 +23,16 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 
 	router.GET("/customers", listCustomers)
-	// Définissez d'autres routes pour new, edit, delete
 	router.GET("/customer/new", newCustomer)
 	router.POST("/customer/new", createCustomerPost)
 	router.GET("/customer/edit/:id", editCustomer)
 	router.POST("/customer/edit/:id", updateCustomerPost)
-	// Utilisez GET pour la démo, mais DELETE est plus approprié pour les opérations réelles de suppression
-	//router.GET("/customer/delete/:id", deleteCustomer)
 
 	router.Run(":8080")
 }
 
 func listCustomers(c *gin.Context) {
-	// URL de l'API pour récupérer les clients
+	/* URL de l'API */
 	apiUrl := "http://localhost:6060/customers"
 
 	resp, err := http.Get(apiUrl)
@@ -45,14 +42,13 @@ func listCustomers(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	// Lire le corps de la réponse
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to read response from customers API"})
 		return
 	}
 
-	// Désérialiser les données JSON dans un slice de Customer
+	/* gestion des données json */
 	var customers []Customer
 	err = json.Unmarshal(body, &customers)
 	if err != nil {
@@ -60,15 +56,14 @@ func listCustomers(c *gin.Context) {
 		return
 	}
 
-	// Passer les clients récupérés au template
 	c.HTML(http.StatusOK, "layout.html", gin.H{
 		"Title":     "Customers List",
 		"Customers": customers,
 	})
 }
 
+/* nouveau form */
 func newCustomer(c *gin.Context) {
-	// Affiche le formulaire pour un nouveau client
 	c.HTML(http.StatusOK, "new_customer.html", nil)
 }
 
@@ -79,14 +74,13 @@ func createCustomerPost(c *gin.Context) {
 		return
 	}
 
-	// Convertissez form en JSON pour l'envoi à l'API
+	/* conversion en json pour envoyer vers l'API */
 	jsonData, err := json.Marshal(form)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to encode data to JSON"})
 		return
 	}
 
-	// Définissez l'en-tête Content-Type de la requête sur application/json
 	apiUrl := "http://localhost:6060/customer"
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", apiUrl, bytes.NewBuffer(jsonData))
@@ -103,9 +97,7 @@ func createCustomerPost(c *gin.Context) {
 	}
 	defer response.Body.Close()
 
-	// Vérifiez le statut de la réponse
 	if response.StatusCode != http.StatusCreated {
-		// Lire le corps de la réponse pour plus d'informations
 		responseBody, err := io.ReadAll(response.Body)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response from API"})
@@ -115,15 +107,13 @@ func createCustomerPost(c *gin.Context) {
 		return
 	}
 
-	// Redirection vers la liste des clients après la création
 	c.Redirect(http.StatusSeeOther, "/customers")
 }
 
 func editCustomer(c *gin.Context) {
 
 	id := c.Param("id")
-
-	// Récupérer le client par ID depuis l'API
+	/* route où se trouve l'id_customer */
 	apiUrl := fmt.Sprintf("http://localhost:6060/customer/%s", id)
 	client := &http.Client{}
 	response, err := client.Get(apiUrl)
@@ -133,9 +123,7 @@ func editCustomer(c *gin.Context) {
 	}
 	defer response.Body.Close()
 
-	// Vérifier le statut de la réponse
 	if response.StatusCode != http.StatusOK {
-		// Lire le corps de la réponse pour plus d'informations
 		responseBody, err := io.ReadAll(response.Body)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response from API"})
@@ -146,13 +134,12 @@ func editCustomer(c *gin.Context) {
 		return
 	}
 
-	/* décoder les données JSON de la réponse */
 	var customer Customer
 	if err := json.NewDecoder(response.Body).Decode(&customer); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode customer data"})
 		return
 	}
-	// Passer les données au template edit_customer.html
+
 	c.HTML(http.StatusOK, "edit_customer.html", gin.H{
 		"title":    "Edit Customer",
 		"customer": customer,
@@ -160,6 +147,5 @@ func editCustomer(c *gin.Context) {
 }
 
 func updateCustomerPost(c *gin.Context) {
-	// Logique pour traiter les données du formulaire et mettre à jour le client
 	println(c.Request.GetBody())
 }
