@@ -19,6 +19,7 @@ type Customer struct {
 }
 
 func main() {
+
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 
@@ -27,6 +28,7 @@ func main() {
 	router.POST("/customer/new", createCustomerPost)
 	router.GET("/customer/edit/:id", editCustomer)
 	router.POST("/customer/edit/:id", updateCustomerPost)
+	router.POST("/customer/delete/:id", deleteCustomer)
 
 	router.Run(":8080")
 }
@@ -113,7 +115,7 @@ func createCustomerPost(c *gin.Context) {
 func editCustomer(c *gin.Context) {
 
 	id := c.Param("id")
-	/* route où se trouve l'id_customer */
+	/* URL de l'API */
 	apiUrl := fmt.Sprintf("http://localhost:6060/customer/%s", id)
 	client := &http.Client{}
 	response, err := client.Get(apiUrl)
@@ -148,4 +150,36 @@ func editCustomer(c *gin.Context) {
 
 func updateCustomerPost(c *gin.Context) {
 	println(c.Request.GetBody())
+}
+
+func deleteCustomer(c *gin.Context) {
+	id := c.Param("id")
+
+	/* URL de l'API */
+	apiUrl := fmt.Sprintf("http://localhost:6060/customer/%s", id)
+
+	req, err := http.NewRequest("DELETE", apiUrl, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la création de la requête de suppression"})
+		return
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de l'envoi de la requête de suppression à l'API"})
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode == http.StatusOK {
+		c.Redirect(http.StatusFound, "/customers")
+	} else {
+		responseBody, err := io.ReadAll(response.Body)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors de la lecture de la réponse de l'API"})
+			return
+		}
+		c.JSON(response.StatusCode, gin.H{"error": string(responseBody)})
+	}
 }
