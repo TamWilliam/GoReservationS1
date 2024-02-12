@@ -43,15 +43,26 @@ func init() {
 	tmpl = template.Must(template.ParseFiles("templates/reservation.html", "templates/confirmation_reservation.html"))
 }
 
-func main() {
-	// Connexion à la base de données
+func initDB() (*sql.DB, error) {
+	// Chargement du fichier .env
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return nil, fmt.Errorf("erreur lors du chargement du fichier .env: %w", err)
 	}
 
+	// Connexion à la base de données
 	db, err := sql.Open("postgres", fmt.Sprintf("user=%s dbname=%s password=%s sslmode=disable",
 		os.Getenv("DB_USER"), os.Getenv("DB_NAME"), os.Getenv("DB_PASSWORD")))
+	if err != nil {
+		return nil, fmt.Errorf("erreur lors de la connexion à la base de données: %w", err)
+	}
+
+	return db, nil
+}
+
+func main() {
+	// Connexion à la base de données
+	db, err := initDB()
 	if err != nil {
 		log.Fatal(err)
 	}
